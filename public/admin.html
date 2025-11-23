@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin — Umoja Wetu</title>
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+<main class="container">
+  <h2>Portail Administrateur — Umoja Wetu</h2>
+
+  <div id="controls">
+    <button id="refresh" class="btn">Rafraîchir</button>
+    <input id="q" placeholder="Recherche par nom, email ou téléphone">
+    <button id="export" class="btn">Exporter CSV</button>
+    <button id="edit-offer" class="btn">Modifier Offre</button>
+    <button id="edit-about" class="btn">Modifier À propos</button>
+    <button id="logout" class="btn">Se déconnecter</button>
+  </div>
+
+  <table id="tbl">
+    <thead>
+      <tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Date</th><th>Action</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="detail" style="display:none;">
+    <button id="close">Fermer</button>
+    <div id="detailContent"></div>
+    <button id="print" class="btn">Imprimer</button>
+  </div>
+</main>
+
+<script>
+async function authFetch(url, opts){ return fetch(url, opts); }
+
+async function loadList(){
+  const r = await authFetch('/api/admin-list');
+  if (!r.ok) {
+    alert('Non autorisé ou session expirée. Retour à la page login.');
+    window.location.href = '/login.html';
+    return;
+  }
+  const list = await r.json();
+  render(list);
+}
+
+function render(list){
+  const tbody = document.querySelector('#tbl tbody');
+  tbody.innerHTML = '';
+  list.forEach(item=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${item.Nom}</td><td>${item.Email}</td><td>${item.Téléphone}</td><td>${item.Date}</td>
+      <td><button data-id="${item._row}" class="view">Voir</button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.view').forEach(b=>{
+    b.addEventListener('click', async (e)=>{
+      const id = e.target.dataset.id;
+      const r = await authFetch('/api/admin-get?id=' + encodeURIComponent(id));
+      if (!r.ok) return alert('Erreur');
+      const j = await r.json();
+      showDetail(j);
+    });
+  });
+}
+
+function showDetail(d){
+  document.getElementById('detailContent').innerHTML = `
+    <h3>${d.Nom}</h3>
+    <p><strong>Email:</strong> ${d.Email}</p>
+    <p><strong>Téléphone:</strong> ${d.Téléphone}</p>
+    <p><strong>Message:</strong><br/>${d.Message || ''}</p>
+    <p><strong>CV:</strong> <a href="${d.CV_Link}" target="_blank">Ouvrir</a></p>
+    <p><strong>Carte électeur:</strong> <a href="${d.ID_Link}" target="_blank">Ouvrir</a></p>
+  `;
+  document.getElementById('detail').style.display = 'block';
+}
+
+document.getElementById('close').addEventListener('click', ()=> document.getElementById('detail').style.display='none');
+document.getElementById('print').addEventListener('click', ()=> window.print());
+
+document.getElementById('refresh').addEventListener('click', loadList);
+document.getElementById('logout').addEventListener('click', async () => {
+  await fetch('/api/admin-login', { method: 'DELETE' });
+  window.location.href = '/login.html';
+});
+
+document.getElementById('export').addEventListener('click', async ()=>{
+  const r = await fetch('/api/admin-list');
+  const data = await r.json();
+  // convert to CSV
+  const rows = [];
+  rows.push(['Date','Nom','Email','Téléphone','Message','CV_Link','ID_Link']);
+  data.forEach(r => rows.push([r.Date, r.Nom, r.Email, r.Téléphone, (r.Message||''), r.CV_Link, r.ID_Link]));
+  const csv = rows.map(r => r.map(cell => `"${(cell||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'candidatures.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('q').addEventListener('input', async (e)=>{
+  const q = e.target.value.toLowerCase();
+  const r = await fetch('/api/admin-list');
+  const data = await r.json();
+  const filtered = data.filter(x => (x.Nom||'').toLowerCase().includes(q) || (x.Email||'').toLowerCase().includes(q) || (x.Téléphone||'').toLowerCase().includes(q));
+  render(filtered);
+});
+
+document.getElementById('edit-offer').addEventListener('click', async ()=>{
+  const t = prompt('Nouveau texte de l\'offre (HTML simple) :');
+  if (!t) return;
+  await fetch('/api/admin-offer', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ text: t })
+  });
+  alert('Offre mise à jour.');
+});
+
+document.getElementById('edit-about').addEventListener('click', async ()=>{
+  const t = prompt('Nouveau texte "À propos" :');
+  if (!t) return;
+  await fetch('/api/admin-about', {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ text: t })
+  });
+  alert('À propos mis à jour.');
+});
+
+// initial load
+loadList();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "umojawetu-recrutement",
+  "version": "1.0.0",
+  "dependencies": {
+    "googleapis": "^131.0.0",
+    "multiparty": "^4.2.1",
+    "node-fetch": "^2.6.7",
+    "nodemailer": "^6.9.3",
+    "jsonwebtoken": "^9.0.0",
+    "csv-stringify": "^6.2.0"
+  }
+}

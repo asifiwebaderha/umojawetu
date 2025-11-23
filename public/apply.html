@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Postuler — Umoja Wetu</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
+</head>
+<body>
+  <main class="container">
+    <h2>Formulaire de candidature — Program Coordinator</h2>
+
+    <form id="applyForm" enctype="multipart/form-data">
+      <label>Nom complet
+        <input name="nom" type="text" required>
+      </label>
+
+      <label>Email
+        <input name="email" type="email" required>
+      </label>
+
+      <label>Téléphone (préfixe : <strong>+243</strong>)
+        <div class="phone-row">
+          <span class="pref">+243</span>
+          <input id="phone-only" name="telephone" type="tel" required placeholder="Ex: 820123456" maxlength="9" pattern="[0-9]{9}">
+        </div>
+        <small>Entrez les 9 chiffres (ex : 820123456).</small>
+      </label>
+
+      <label>CV (PDF uniquement)
+        <input name="cv" type="file" accept="application/pdf" required>
+      </label>
+
+      <label>Photo de la carte d'électeur (image)
+        <input name="idphoto" type="file" accept="image/*" required>
+      </label>
+
+      <label>Lettre de motivation (optionnel)
+        <textarea name="message" rows="4"></textarea>
+      </label>
+
+      <input type="hidden" name="recaptchaToken" id="recaptchaToken" />
+
+      <button type="submit" class="btn">Envoyer la candidature</button>
+      <p id="status"></p>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('applyForm');
+    const status = document.getElementById('status');
+
+    function validPhoneDigits(s) { return /^\d{9}$/.test(s); }
+
+    async function getRecaptchaToken() {
+      // Using reCAPTCHA v2 invisible / v3: the site must include client-side integration
+      // The server allows skipping verification if RECAPTCHA_SECRET not configured
+      return ''; // token optional; server will accept even if empty when not configured
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.innerText = '';
+
+      const phoneRaw = document.getElementById('phone-only').value.trim();
+      if (!validPhoneDigits(phoneRaw)) {
+        status.style.color = 'red';
+        status.innerText = 'Le numéro doit contenir exactement 9 chiffres (après préfixe +243).';
+        return;
+      }
+
+      // Build FormData with +243 prefixed telephone
+      const fd = new FormData(form);
+      fd.set('telephone', '+243' + phoneRaw);
+
+      // Optional: add recaptcha token (client integration omitted for simplicity)
+      fd.set('recaptchaToken', '');
+
+      status.style.color = 'black';
+      status.innerText = 'Envoi en cours...';
+
+      const resp = await fetch('/api/submit', { method: 'POST', body: fd });
+      const text = await resp.text();
+      if (resp.ok) {
+        status.style.color = 'green';
+        status.innerText = 'Candidature envoyée avec succès. Merci !';
+        form.reset();
+      } else {
+        status.style.color = 'red';
+        status.innerText = text || 'Erreur lors de l’envoi.';
+      }
+    });
+  </script>
+</body>
+</html>

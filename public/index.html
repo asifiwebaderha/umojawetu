@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Umoja Wetu — Offre : Program Coordinator</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <h1>Umoja Wetu</h1>
+      <p class="tag">Organisation humanitaire — Bukavu</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="offer">
+      <h2>Offre d'emploi — Program Coordinator (Education & Volunteer Management)</h2>
+
+      <p><strong>Organisation :</strong> Umoja Wetu</p>
+      <p><strong>Lieu :</strong> Bukavu, République Démocratique du Congo</p>
+      <p><strong>Fondée :</strong> 2022 — Fondateur : Baraka Mubalama Masumbuko</p>
+
+      <h3>À propos de Umoja Wetu</h3>
+      <p id="about-text">
+        Umoja Wetu est une organisation humanitaire fondée en 2022 par Monsieur <strong>Baraka Mubalama Masumbuko</strong>.
+        Notre mission est d'unir toutes les personnes, indépendamment de leur classe sociale ou de leur état de santé,
+        pour promouvoir l'inclusion, l'accès à l'éducation et l'engagement citoyen. Basés à Bukavu, nous développons
+        des programmes d'éducation, de santé communautaire et d'engagement volontaire.
+      </p>
+
+      <h3>Résumé du poste</h3>
+      <p>
+        Le/la Program Coordinator (Education & Volunteer Management) dirigera la conception, la mise en œuvre et la
+        supervision des programmes éducatifs et des activités de gestion de volontaires. Le/la titulaire du poste
+        travaillera en étroite collaboration avec les partenaires locaux, bénévoles et la direction pour assurer
+        l'impact et la qualité du programme.
+      </p>
+
+      <h4>Responsabilités principales</h4>
+      <ul>
+        <li>Planifier, coordonner et superviser les activités éducatives.</li>
+        <li>Recruter, former et encadrer les volontaires.</li>
+        <li>Élaborer et suivre les indicateurs de performance et rapports.</li>
+        <li>Assurer la liaison avec partenaires locaux et donateurs.</li>
+      </ul>
+
+      <h4>Profil recherché</h4>
+      <ul>
+        <li>Diplôme en éducation, gestion de projet, sciences sociales ou équivalent.</li>
+        <li>Minimum 2 ans d'expérience en coordination de programmes ou gestion de volontaires.</li>
+        <li>Capacités de leadership, communication et organisationnelles.</li>
+        <li>Disponibilité pour travailler sur le terrain à Bukavu.</li>
+      </ul>
+
+      <h4>Conditions</h4>
+      <ul>
+        <li>Contrat local selon expérience.</li>
+        <li>Démarrage : dès que possible.</li>
+      </ul>
+
+      <div class="cta">
+        <a class="btn" href="/apply.html">Postuler</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Umoja Wetu — Unir les personnes, renforcer la dignité humaine. Fondée en 2022.</p>
+  </footer>
+
+  <script>
+    // Charger dynamiquement "about" si admin l'a modifié via API
+    async function loadAbout(){
+      try {
+        const r = await fetch('/api/admin-about');
+        if (r.ok) {
+          const j = await r.json();
+          if (j && j.text) document.getElementById('about-text').innerText = j.text;
+        }
+      } catch(e){ console.warn(e); }
+    }
+    loadAbout();
+  </script>
+</body>
+</html>

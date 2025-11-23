@@ -1,0 +1,7 @@
+/* admin styles */
+.container{padding:16px}
+#controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+#controls input{flex:1;min-width:180px;padding:8px}
+table thead{background:#f7f9fc}
+table tbody tr:hover{background:#fbfdff}
+#detail{margin-top:12px;padding:12px;border:1px solid #eee;border-radius:8px;background:#fafafa}
