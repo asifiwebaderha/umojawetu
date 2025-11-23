@@ -14,8 +14,7 @@ module.exports = async (req, res) => {
 
     const token = signAdmin();
     // set cookie (HttpOnly)
-    res.setHeader('Set-Cookie', `uw_admin_token=${token}; HttpOnly; Path=/; Max-Age=${12*3600}`);
-    return res.status(200).send('OK');
+    res.setHeader("Set-Cookie",`uw_admin_token=${token}; HttpOnly; Path=/; Max-Age=${12*3600}; SameSite=None; Secure`);
   } else if (req.method === 'DELETE') {
     res.setHeader('Set-Cookie', `uw_admin_token=; HttpOnly; Path=/; Max-Age=0`);
     return res.status(200).send('Déconnecté');
